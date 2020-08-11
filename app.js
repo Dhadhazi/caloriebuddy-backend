@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 const db = require("./controllers/dbconroller.js");
+const UserModell = require("./models/UserModell");
+const cron = require("node-cron");
 
 const cors = require("cors");
 
@@ -19,6 +21,10 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+
+cron.schedule("1 0 * * *", () => {
+  UserModell.dailyRollover();
+});
 
 app.get("/", (req, res) => {
   res.json({

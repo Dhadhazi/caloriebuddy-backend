@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const db = require("../controllers/dbconroller.js");
 const bcrypt = require("bcrypt");
 const jwt = require("../controllers/jwt");
+const moment = require("moment");
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -43,11 +44,64 @@ const userSchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
+  lastLogin: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", userSchema);
 
 class user {
+  static dailyRollover() {
+    const threeDaysAgo = moment().subtract(3, "d").format("YYYY-MM-DD");
+    const getUsers = User.find({ lastLogin: { $gte: threeDaysAgo } });
+    getUsers.exec((err, response) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const yesterday = moment().subtract(1, "day");
+        for (let i = 0; i < response.length; i++) {
+          const sumConsumption = response[i].consumption.reduce((acc, cur) => {
+            if (
+              moment(cur.date).format("YYYYMMDD") ===
+              moment(yesterday).format("YYYYMMDD")
+            ) {
+              return acc + cur.calories;
+            }
+            return acc;
+          }, 0);
+          const sumActivity = response[i].activity.reduce((acc, cur) => {
+            if (
+              moment(cur.date).format("YYYYMMDD") ===
+              moment(yesterday).format("YYYYMMDD")
+            ) {
+              return acc + cur.calories;
+            }
+            return acc;
+          }, 0);
+          const rolloverCalories =
+            Math.floor(
+              (response[i].budget.total_calories -
+                sumConsumption +
+                Math.floor(
+                  sumActivity * (response[i].budget.rule_activity_add / 100)
+                )) *
+                (response[i].budget.rule_calorie_rollover / 100)
+            ) + response[i].budget.rollover_calories;
+          const updateUser = User.findOne({ _id: response[i]._id });
+          updateUser.exec((err, resUser) => {
+            if (err) {
+              console.log(err);
+            } else {
+              resUser.budget.rollover_calories = rolloverCalories;
+              resUser.save((err) => {
+                if (err) return console.log(err);
+              });
+            }
+          });
+        }
+      }
+    });
+  }
+
   static addUser(email, password, res) {
     const newUser = new User({
       email,
@@ -90,6 +144,10 @@ class user {
               console.log(err);
             } else {
               if (result) {
+                response.lastLogin = Date.now();
+                response.save((err) => {
+                  if (err) return console.log(err);
+                });
                 const token = jwt.toJWT({ email });
                 const responseData = {
                   token,
@@ -110,13 +168,17 @@ class user {
   }
 
   static loginJwt(email, res) {
-    User.findOne({ email: email }, function (err, response) {
+    User.findOne({ email }, function (err, response) {
       if (err) {
         console.log(err);
       } else {
         if (response === null) {
           res.send({ message: "Problem with user, please login again" });
         } else {
+          response.lastLogin = Date.now();
+          response.save((err) => {
+            if (err) return console.log(err);
+          });
           const responseData = {
             activity: response.activity,
             consumption: response.consumption,
@@ -150,7 +212,7 @@ class user {
           response.activity = [];
           response.consumption = [];
           response.weight = [];
-          response.budget = {
+          response.budgnodet = {
             total_calories: 1500,
             rollover_calories: 0,
             rule_activity_add: 50,
