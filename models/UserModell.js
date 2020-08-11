@@ -129,6 +129,42 @@ class user {
     });
   }
 
+  static deleteUser(email, res) {
+    User.findOneAndDelete({ email: email }, function (err) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send({ message: "User deleted" });
+      }
+    });
+  }
+
+  static resetUser(email, res) {
+    User.findOne({ email: email }, function (err, response) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (response === null) {
+          res.send({ message: "Problem with user, please login again" });
+        } else {
+          response.activity = [];
+          response.consumption = [];
+          response.weight = [];
+          response.budget = {
+            total_calories: 1500,
+            rollover_calories: 0,
+            rule_activity_add: 50,
+            rule_calorie_rollover: 50,
+          };
+          response.save((err) => {
+            if (err) return console.log(err);
+            res.send({ message: "Data reseted, please login again" });
+          });
+        }
+      }
+    });
+  }
+
   static addUserData(email, data, res) {
     User.findOne({ email: email }, function (err, response) {
       if (err) {
@@ -143,7 +179,8 @@ class user {
           });
           response.save((err, done) => {
             if (err) return console.log(err);
-            res.send({ message: "Update successful" });
+            const keysLength = done[keys[0]].length - 1;
+            res.send(done[keys[0]][keysLength]._id);
           });
         }
       }
@@ -196,18 +233,28 @@ class user {
     });
   }
 
-  static deleteWeight(email, id, res) {
-    User.findOne({ email: email, "weight._id": id }, function (err, response) {
+  static deleteWeight(email, data, res) {
+    const query = User.findOne({
+      email: email,
+      "weight._id": data.id,
+      "weight.date": new Date(data.date),
+    });
+
+    query.exec((err, response) => {
       if (err) {
         console.log(err);
       } else {
-        response.weight = response.weight.filter(
-          (w) => String(w._id) != String(id)
-        );
-        response.save((err) => {
-          if (err) return console.log(err);
-          res.send({ message: "Weight deleted" });
-        });
+        if (response === null) {
+          res.send({ message: "Didn't find the record, database error" });
+        } else {
+          response.weight = response.weight.filter(
+            (w) => +w.date !== +new Date(data.date)
+          );
+          response.save((err) => {
+            if (err) return console.log(err);
+            res.send({ message: "Weight deleted" });
+          });
+        }
       }
     });
   }
@@ -220,11 +267,12 @@ class user {
     ) {
       if (err) {
         console.log(err);
+      } else if (response === null) {
+        res.send({ message: "Problem with deleting the use" });
       } else {
         response[category] = response[category].filter(
           (d) => String(d._id) != String(data.id)
         );
-        console.log(response);
         response.save((err) => {
           if (err) return console.log(err);
           res.send({ message: "Log deleted" });

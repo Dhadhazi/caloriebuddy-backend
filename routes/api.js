@@ -19,8 +19,11 @@ router.post("/user/add", apicontroller.addUserData);
 router.patch("/user/weight", apicontroller.updateWeight);
 router.patch("/user/budget", apicontroller.setBudget);
 
+router.put("/user/", apicontroller.resetUser);
+
 router.get("/loginJwt", apicontroller.loginJwt);
 
+router.delete("/user/", apicontroller.deleteUser);
 router.delete("/user/weight", apicontroller.deleteWeight);
 router.delete("/user/add", apicontroller.deleteLogItem);
 

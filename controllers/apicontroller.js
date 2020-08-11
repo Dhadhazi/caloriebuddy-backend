@@ -33,6 +33,24 @@ exports.loginJwt = (req, res) => {
   }
 };
 
+exports.resetUser = (req, res) => {
+  try {
+    const email = jwt.toData(req.header("Authorization").split(" ")[1]);
+    UserModell.resetUser(email.email, res);
+  } catch (err) {
+    res.send({ message: "Please login again" });
+  }
+};
+
+exports.deleteUser = (req, res) => {
+  try {
+    const email = jwt.toData(req.header("Authorization").split(" ")[1]);
+    UserModell.deleteUser(email.email, res);
+  } catch (err) {
+    res.send({ message: "Please login again" });
+  }
+};
+
 exports.addUserData = (req, res) => {
   try {
     const email = jwt.toData(req.header("Authorization").split(" ")[1]);
@@ -57,7 +75,7 @@ exports.deleteWeight = (req, res) => {
   try {
     const email = jwt.toData(req.header("Authorization").split(" ")[1]);
     const data = req.body;
-    UserModell.deleteWeight(email.email, data.id, res);
+    UserModell.deleteWeight(email.email, data, res);
   } catch (err) {
     res.send({ message: "Please login again" });
   }
