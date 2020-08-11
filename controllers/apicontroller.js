@@ -72,3 +72,13 @@ exports.setBudget = (req, res) => {
     res.send({ message: "Please login again" });
   }
 };
+
+exports.deleteLogItem = (req, res) => {
+  try {
+    const email = jwt.toData(req.header("Authorization").split(" ")[1]);
+    const data = req.body;
+    UserModell.deleteLogItem(email.email, data, res);
+  } catch (err) {
+    res.send({ message: "Please login again" });
+  }
+};

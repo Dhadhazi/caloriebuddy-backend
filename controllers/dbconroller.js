@@ -13,7 +13,7 @@ exports.connect = () => {
   });
 };
 exports.disconnect = () => {
-  // mongoose.connection.close();
+  mongoose.connection.close();
 };
 
 exports.write = async (data, res) => {

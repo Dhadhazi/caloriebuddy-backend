@@ -22,5 +22,6 @@ router.patch("/user/budget", apicontroller.setBudget);
 router.get("/loginJwt", apicontroller.loginJwt);
 
 router.delete("/user/weight", apicontroller.deleteWeight);
+router.delete("/user/add", apicontroller.deleteLogItem);
 
 module.exports = router;

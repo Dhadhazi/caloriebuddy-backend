@@ -211,6 +211,27 @@ class user {
       }
     });
   }
+
+  static deleteLogItem(email, data, res) {
+    let category = data.category;
+    User.findOne({ email: email, [category + "._id"]: data.id }, function (
+      err,
+      response
+    ) {
+      if (err) {
+        console.log(err);
+      } else {
+        response[category] = response[category].filter(
+          (d) => String(d._id) != String(data.id)
+        );
+        console.log(response);
+        response.save((err) => {
+          if (err) return console.log(err);
+          res.send({ message: "Log deleted" });
+        });
+      }
+    });
+  }
 }
 
 module.exports = user;
