@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const apicontroller = require("../controllers/apicontroller");
 const path = require("path");
+
+const apicontroller = require("../controllers/apicontroller");
+
 require("dotenv").config({
   path: path.resolve(__dirname, "./.env"),
 });
@@ -12,6 +14,8 @@ router.get("/", (req, res) => {
   });
 });
 
+router.get("/loginJwt", apicontroller.loginJwt);
+
 router.post("/user/", apicontroller.addUser);
 router.post("/login", apicontroller.loginUser);
 router.post("/user/add", apicontroller.addUserData);
@@ -20,8 +24,6 @@ router.patch("/user/weight", apicontroller.updateWeight);
 router.patch("/user/budget", apicontroller.setBudget);
 
 router.put("/user/", apicontroller.resetUser);
-
-router.get("/loginJwt", apicontroller.loginJwt);
 
 router.delete("/user/", apicontroller.deleteUser);
 router.delete("/user/weight", apicontroller.deleteWeight);

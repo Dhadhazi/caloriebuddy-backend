@@ -2,11 +2,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
+const cron = require("node-cron");
+const cors = require("cors");
+
 const db = require("./controllers/dbconroller.js");
 const UserModell = require("./models/UserModell");
-const cron = require("node-cron");
-
-const cors = require("cors");
 
 require("dotenv").config({
   path: path.resolve(__dirname, "./.env"),

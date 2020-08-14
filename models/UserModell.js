@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const db = require("../controllers/dbconroller.js");
 const bcrypt = require("bcrypt");
-const jwt = require("../controllers/jwt");
 const moment = require("moment");
+
+const jwt = require("../controllers/jwt");
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -111,10 +111,9 @@ class user {
     async function save() {
       try {
         await newUser.save();
-        db.disconnect();
         res.status(200).send(newUser);
       } catch (err) {
-        console.log("me write: ", err);
+        console.log(err);
       }
     }
 
