@@ -1,6 +1,4 @@
-# caloriebuddy-backend
-
-Minimal Viable Product version of the backend.
+# Calorie Buddy Backend - MVP Version
 
 ## REST API made with NodeJ using MongoDB
 
