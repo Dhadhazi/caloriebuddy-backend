@@ -33,8 +33,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-console.log(process.env.JWT_SECRET);
-
 cron.schedule("1 0 * * *", () => {
   UserModell.dailyRollover();
 });
