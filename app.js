@@ -13,7 +13,7 @@ require("dotenv").config({
 });
 const apiRoutes = require("./routes/api");
 
-app.use(cors());
+// app.use(cors());
 
 app.use(
   bodyParser.urlencoded({
